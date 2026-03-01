@@ -1,4 +1,9 @@
 import streamlit as st
+import requests
+import pandas as pd
+from datetime import datetime, time, timedelta
+import plotly.graph_objects as go
+import plotly.express as px
 
 # DIESE ZEILE MUSS GANZ OBEN STEHEN
 st.set_page_config(
@@ -6,12 +11,6 @@ st.set_page_config(
     page_icon="🧭", # Hier kannst du auch ein anderes Emoji wie ⛵ oder ⚓ nehmen
     layout="wide"
 )
-
-import requests
-import pandas as pd
-from datetime import datetime, time, timedelta
-import plotly.graph_objects as go
-import plotly.express as px
 
 # Konfiguration der Seite
 st.set_page_config(page_title="Ionian Sailor Pro", layout="wide", page_icon="⛵")
@@ -363,4 +362,5 @@ with st.expander("🆘 Notfall-Infos & Funk (Ionian Sea)"):
         "Info": ["Griechenlandweit", "Wetter & Sicherheit", "Nur Notfall", "Rettungsdienst"]
     }
     st.table(pd.DataFrame(emergency_data))
+
     st.info("⚠️ VHF Olympia Radio Sendezeiten: 06:33, 09:33, 15:33, 21:33 (Lokalzeit)")
