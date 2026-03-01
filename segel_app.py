@@ -1,4 +1,12 @@
 import streamlit as st
+
+# DIESE ZEILE MUSS GANZ OBEN STEHEN
+st.set_page_config(
+    page_title="Ionian Navigator",
+    page_icon="🧭", # Hier kannst du auch ein anderes Emoji wie ⛵ oder ⚓ nehmen
+    layout="wide"
+)
+
 import requests
 import pandas as pd
 from datetime import datetime, time, timedelta
@@ -82,7 +90,7 @@ def create_nautical_chart(wind_kn, wind_dir, wave_m, wave_dir, strom_kn, strom_d
     # Wind-Pfeil
     fig.add_trace(go.Scatterpolar(
         r=[wind_kn_korr, 0], theta=[wind_dir, wind_dir],
-        mode='lines+markers', name=f'Wind aus {wind_dir}°',
+        mode='lines+markers', name=f'🌬️ aus {wind_dir}°, {wind_kn} kn',
         line=dict(color='blue', width=6),
         marker=dict(symbol='arrow', size=25, angleref='previous')
     ))
@@ -90,7 +98,7 @@ def create_nautical_chart(wind_kn, wind_dir, wave_m, wave_dir, strom_kn, strom_d
     # Wellen-Pfeil (x10)
     fig.add_trace(go.Scatterpolar(
         r=[wave_m_korr, 0], theta=[wave_dir, wave_dir],
-        mode='lines+markers', name=f'Welle aus {wave_dir}°',
+        mode='lines+markers', name=f'〰️ aus {wave_dir}°, {wave_m}m',
         line=dict(color='green', width=5),
         marker=dict(symbol='arrow', size=15, angleref='previous')
     ))
@@ -99,7 +107,7 @@ def create_nautical_chart(wind_kn, wind_dir, wave_m, wave_dir, strom_kn, strom_d
     strom_herkunft = (strom_dir + 180) % 360
     fig.add_trace(go.Scatterpolar(
         r=[strom_kn_korr, 0], theta=[strom_herkunft, strom_herkunft],
-        mode='lines+markers', name=f'Strom kommt aus {strom_herkunft}°',
+        mode='lines+markers', name=f'Strom aus {strom_herkunft}°, {strom_kn} kn',
         line=dict(color='red', width=4),
         marker=dict(symbol='arrow', size=15, angleref='previous')
     ))
@@ -199,10 +207,10 @@ if st.button("Strategie-Daten laden"):
                 "Böen (kn)": round(wh_res['wind_gusts_10m'][i], 1),
                 "Welle (m)": round(sh_res['wave_height'][i], 1),    # Aus Marine-API
                 "Welle aus": sh_res['wave_direction'][i], # {get_arrow(wh_res['wave_direction'][i])}",
-                "Strömung (kn)": round(sh_res['ocean_current_velocity'][i], 1),
-                "Strömung nach": sh_res['ocean_current_direction'][i] ,
+                "Strom (kn)": round(sh_res['ocean_current_velocity'][i], 1),
+                "Strom nach": sh_res['ocean_current_direction'][i] ,
                 "Regen (mm)": round(wh_res['precipitation'][i], 0),
-                "Druck": wh_res['pressure_msl'][i]
+                "P (hPa)": wh_res['pressure_msl'][i]
             })
 
         # Stop, wenn wir genug Stunden haben
@@ -220,7 +228,7 @@ if st.button("Strategie-Daten laden"):
         if start_plot <= f_time <= end_plot:
             press_list.append({
                 "Zeit": f_time.strftime("%H:%M"),
-                "Druck": wh_res['pressure_msl'][i]
+                "P (hPa)": wh_res['pressure_msl'][i]
             })
 
     # Speichern im "Gedächtnis"
@@ -233,21 +241,17 @@ if 'weather_data' in st.session_state:
     data = st.session_state['weather_data']
      
     # Tabelle anzeigen
-    #df = pd.DataFrame(data).drop(columns=['Druck'])
-    #st.table(df.style.map(color_wind, subset=['Wind (kn)', 'Böen (kn)']))
-    
+        
     # Luftdruck-Warnung & Chart
     # Wir brauchen die letzten 3 Werte für den Alarm-Check
     p_hist = st.session_state['pressure_history']
     if len(p_hist) >= 4:
         # Aktueller Druck vs. Druck vor 3 Stunden
-        p_diff = round(p_hist[5]['Druck'] - p_hist[2]['Druck'], 1) # Grober 3h Check
+        p_diff = round(p_hist[5]['P (hPa)'] - p_hist[2]['P (hPa)'], 1) # Grober 3h Check
         #if p_diff <= -1.5: st.warning(f"📉 Barometer sinkt: {p_diff} hPa/3h")
-        fig_p = px.line(pd.DataFrame(p_hist), x="Zeit", y="Druck", title="Barograph")
+        fig_p = px.line(pd.DataFrame(p_hist), x="Zeit", y="P (hPa)", title="Barograph")
         fig_p.update_xaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')        
         fig_p.update_yaxes(range=[980, 1045])
-        # fig_p.update_annotations(textposition = 'top center', marker=dict(size=12))
-        # fig_p.update_traces(textposition = 'top center', marker=dict(size=12))
         st.plotly_chart(fig_p, width='stretch')
         
 
@@ -266,26 +270,40 @@ if 'weather_data' in st.session_state:
     data = st.session_state['weather_data']
     df = pd.DataFrame(data)
     
-    styled_df = df.style.map(color_wind,
-        subset=['Wind (kn)', 'Böen (kn)']).format({
+    styled_df = df.style.map(color_wind,subset=['Wind (kn)', 'Böen (kn)']).format({
             "Wind (kn)": "{:.1f}", 
             "Böen (kn)": "{:.1f}", 
             "Welle (m)": "{:.1f}", 
-            "Strömung (kn)": "{:.1f}",
+            "Strom (kn)": "{:.1f}",
             "Regen (mm)": "{:.1f}",
-            "Druck": "{:.1f}"
+            "P (hPa)": "{:.1f}"
     })
     st.divider()
 
     # Tabelle anzeigen
-    st.table(styled_df)
+    st.write("### 📅 Strategie-Planer")
+    column_configuration = {
+        "Uhrzeit": st.column_config.TextColumn("Zeit", width="small", pinned=True),
+        "Wind (kn)": st.column_config.NumberColumn("Wind", width="small"),
+        "Böen (kn)": st.column_config.NumberColumn("Böen", width="small"),
+        "Welle (m)": st.column_config.NumberColumn("Welle", width="small"),
+        "Strom (kn)": st.column_config.NumberColumn("Strom", width="small"),
+        "Regen (mm)": st.column_config.NumberColumn("Regen", width="small"),
+        "P (hPa) (mm)": st.column_config.NumberColumn("Regen", width="small"),
+    }    
+    st.dataframe(
+        styled_df,
+        column_config=column_configuration,
+        use_container_width=False,
+        hide_index=True
+    )
 
     st.divider()
     
     curr = data[st.session_state['current_idx']]
 
     # Logik für Wind gegen Strömung
-    diff = abs(curr["Wind aus"] - curr["Strömung nach"])
+    diff = abs(curr["Wind aus"] - curr["Strom nach"])
     is_opposed = (diff < 50)
     # is_opposed = (diff > 140 and diff < 220)
 
@@ -303,7 +321,7 @@ if 'weather_data' in st.session_state:
     )
         
     with col2:
-        if is_opposed and (curr["Strömung (kn)"] > 2.5):
+        if is_opposed and (curr["Strom (kn)"] > 2.5):
             st.error("❗ ACHTUNG: Wind gegen Strömung! Erwarte steile, kurze Wellen.")
         else:
             st.info("See: Keine kritische Wind-Strömung-Konstellation."
@@ -331,12 +349,18 @@ if 'weather_data' in st.session_state:
     fig_navigation = create_nautical_chart(
         curr["Wind (kn)"], curr["Wind aus"], 
         curr["Welle (m)"], curr["Welle aus"], 
-        curr["Strömung (kn)"], curr["Strömung nach"]
+        curr["Strom (kn)"], curr["Strom nach"]
     )
         
     #ANZEIGEN der Grafik
     st.plotly_chart(fig_navigation, width='stretch')
-          
 
-
-
+    # --- NOTFALL & FUNK (Olympia Radio / Ionische Inseln) ---
+with st.expander("🆘 Notfall-Infos & Funk (Ionian Sea)"):
+    emergency_data = {
+        "Dienst": ["Küstenwache (General)", "Olympia Radio (VHF)", "Seenotruf (VHF)", "Medizin. Hilfe (EKAB)"],
+        "Kanal / Tel": ["108", "Ch 02 / 03 / 04 / 85", "Ch 16", "166"],
+        "Info": ["Griechenlandweit", "Wetter & Sicherheit", "Nur Notfall", "Rettungsdienst"]
+    }
+    st.table(pd.DataFrame(emergency_data))
+    st.info("⚠️ VHF Olympia Radio Sendezeiten: 06:33, 09:33, 15:33, 21:33 (Lokalzeit)")
