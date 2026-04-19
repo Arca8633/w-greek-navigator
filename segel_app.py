@@ -1,9 +1,10 @@
+# Segelapp für das Wetter in Griechenland.
+# Mittlerweile erweiter auf Ionisches Meer, Saronischer Golf
+# In Visual Studio wird es gestartet mit:
+# python.exe -m streamlit run segel_app_01.py
+
+
 import streamlit as st
-import requests
-import pandas as pd
-from datetime import datetime, time, timedelta
-import plotly.graph_objects as go
-import plotly.express as px
 
 # DIESE ZEILE MUSS GANZ OBEN STEHEN
 st.set_page_config(
@@ -11,6 +12,12 @@ st.set_page_config(
     page_icon="🧭", # Hier kannst du auch ein anderes Emoji wie ⛵ oder ⚓ nehmen
     layout="wide"
 )
+
+import requests
+import pandas as pd
+from datetime import datetime, time, timedelta
+import plotly.graph_objects as go
+import plotly.express as px
 
 # Konfiguration der Seite
 st.set_page_config(page_title="Ionian Sailor Pro", layout="wide", page_icon="⛵")
@@ -50,7 +57,6 @@ def get_bft(w_knots):
     if w_knots  < 55: return 10
     if w_knots  < 63: return 11
     return 12
-
 
 # Definition für die Darstellung der Pfeile in der Windrose
 #----------------------------------------------------------
@@ -127,44 +133,52 @@ with st.sidebar:
 
     # Region Auswahl
     region = st.selectbox("Region wählen:",
-        ["Korfu (Nord)",
-         "Lefkas (Mitte)",
-         "Ithaka/Kefalonia",
-         "Zakynthos (Süd)",
-         "Ionio Pelagos",
-         "Messinakos Eingang",
-         "Messinakos Golf",
-         "Kitira West",
-         "Kitira Ost",
-         "Lakonischer Golf",
-         "Mirtoisches Meer",
-         "Argolischer Golf",
-         "Kolpos Idras",
-         "Agios",
-         "Saronischer Golf (E)",
-         "Saronischer Golf (W)",
-         "Golf von Korint (E)",
-         "Golf von Korint (W)",
+        ["A1-N--Korfu (Nord)",
+         "A1-S--Lefkas (Mitte)",
+         "B1-N--Ithaka/Kefalonia",
+         "B1-C--Zakynthos (Süd)",
+         "B1-SE--Ionio Pelagos",
+         "C2-NW--Messinakos Eingang",
+         "C2-N--Messinakos Golf",
+         "C2-N--Kitira West",
+         "C3-W--Kitira Ost",
+         "C2-NE--Lakonischer Golf",
+         "C3-N--Myrtoisches Meer",
+         "B2|3-S--Argolischer Golf",
+         "B3-SW--Kolpos Idras",
+         "B3-S--Agios Georgios",
+         "B3-C--Saronischer Golf (E)",
+         "B3-W--Saronischer Golf (W)",
+         "B3-NW--Golf von Korint (E)",
+         "B2-NC--Golf von Korint (W)",
+         "C3-NE--Milos",
+         "C4-N--Paros",
+         "B4-C--Andros [Aegaeis]",
+         "B3-NE--Petalioi Golf",
          "Solent"
          ])
-    coords = {"Korfu (Nord)": [39.62, 19.96],
-            "Lefkas (Mitte)": [38.72, 20.77], 
-            "Ithaka/Kefalonia": [38.30, 20.82],
-            "Zakynthos (Süd)": [37.78, 21.05],
-            "Ionio Pelagos": [37.31, 21.45],
-            "Messinakos Eingang": [36.64, 21.83],
-            "Messinakos Golf": [36.86, 22.05],
-            "Kitira West": [36.25,22.69],
-            "Kitira Ost": [36.26,23.23],
-            "Lakonischer Golf": [36.65,22.69],
-            "Mirtoisches Meer": [36.97,23.63],
-            "Argolischer Golf": [37.37,22.91],
-            "Kolpos Idras": [37.37,23.42],
-            "Agios": [37.52,23.78],
-            "Saronischer Golf (E)": [37.74,23.64],
-            "Saronischer Golf (W)": [37.78,23.31],
-            "Golf von Korint (E)": [38.0,22.83],
-            "Golf von Korint (w)": [38.28,22.39],
+    coords = {"A1-N--Korfu (Nord)": [39.62, 19.96],
+            "A1-S--Lefkas (Mitte)": [38.72, 20.77], 
+            "B1-N--Ithaka/Kefalonia": [38.30, 20.82],
+            "B1-C--Zakynthos (Süd)": [37.78, 21.05],
+            "B1-SE--Ionio Pelagos": [37.31, 21.45],
+            "C2-NW--Messinakos Eingang": [36.64, 21.83],
+            "C2-N--Messinakos Golf": [36.86, 22.05],
+            "C2-N--Kitira West": [36.25,22.69],
+            "C3-W--Kitira Ost": [36.26,23.23],
+            "C2-NE--Lakonischer Golf": [36.65,22.69],
+            "C3-N--Myrtoisches Meer": [36.97,23.63],
+            "B2|3-S--Argolischer Golf": [37.37,22.91],
+            "B3-SW--Kolpos Idras": [37.37,23.42],
+            "B3-S--Agios Georgios": [37.52,23.78],
+            "B3-C--Saronischer Golf (E)": [37.74,23.64],
+            "B3-W--Saronischer Golf (W)": [37.78,23.31],
+            "B3-NW--Golf von Korint (E)": [38.0,22.83],
+            "B2-NC--Golf von Korint (W)": [38.28,22.39],
+            "C3-NE--Milos": [36.94, 24.40],
+            "C4-N--Paros": [36.85, 25.05],
+            "B4-C--Andros [Aegaeis]": [37.83, 25.06],
+            "B3-NE--Petalioi Golf": [38.116, 24.11],
             "Solent": [50.78, -1.26]}
     lat, lon = coords[region]
 
@@ -183,7 +197,7 @@ with st.sidebar:
 if st.button("Strategie-Daten laden"):
 
     wh_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m,temperature_2m,relative_humidity_2m,pressure_msl,precipitation&wind_speed_unit=kn&past_days=1&timezone=auto"
-    sh_url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&hourly=wave_height,wave_direction,ocean_current_velocity,ocean_current_direction&wind_speed_unit=kn&timezone=auto"
+    sh_url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&hourly=wave_height,wave_direction,ocean_current_velocity,ocean_current_direction,sea_surface_temperature&wind_speed_unit=kn&timezone=auto"
 
     wh_res = requests.get(wh_url).json()['hourly']
     sh_res = requests.get(sh_url).json()['hourly']
@@ -207,9 +221,11 @@ if st.button("Strategie-Daten laden"):
                 "Welle (m)": round(sh_res['wave_height'][i], 1),    # Aus Marine-API
                 "Welle aus": sh_res['wave_direction'][i], # {get_arrow(wh_res['wave_direction'][i])}",
                 "Strom (kn)": round(sh_res['ocean_current_velocity'][i], 1),
-                "Strom nach": sh_res['ocean_current_direction'][i] ,
-                "Regen (mm)": round(wh_res['precipitation'][i], 0),
-                "P (hPa)": wh_res['pressure_msl'][i]
+                "Strom nach": sh_res['ocean_current_direction'][i],
+                "P (hPa)": wh_res['pressure_msl'][i],
+                "T-Luft (°C)": wh_res['temperature_2m'][i],
+                "T-Wasser (°C)": sh_res['sea_surface_temperature'][i],
+                "Regen (mm)": round(wh_res['precipitation'][i], 0)
             })
 
         # Stop, wenn wir genug Stunden haben
@@ -274,8 +290,10 @@ if 'weather_data' in st.session_state:
             "Böen (kn)": "{:.1f}", 
             "Welle (m)": "{:.1f}", 
             "Strom (kn)": "{:.1f}",
-            "Regen (mm)": "{:.1f}",
-            "P (hPa)": "{:.1f}"
+            "P (hPa)": "{:.1f}",
+            "T-Luft (°C)": "{:.1f}",
+            "T-Wasser (°C)": "{:.1f}",
+            "Regen (mm)": "{:.1f}"
     })
     st.divider()
 
@@ -287,8 +305,10 @@ if 'weather_data' in st.session_state:
         "Böen (kn)": st.column_config.NumberColumn("Böen", width="small"),
         "Welle (m)": st.column_config.NumberColumn("Welle", width="small"),
         "Strom (kn)": st.column_config.NumberColumn("Strom", width="small"),
-        "Regen (mm)": st.column_config.NumberColumn("Regen", width="small"),
         "P (hPa) (mm)": st.column_config.NumberColumn("Regen", width="small"),
+        "T-Luft (°C)": st.column_config.NumberColumn("T-Luft", width="small"),
+        "T-Wasser (°C)": st.column_config.NumberColumn("T-Wasser", width="small"),        
+        "Regen (mm)": st.column_config.NumberColumn("Regen", width="small"),
     }    
     st.dataframe(
         styled_df,
@@ -362,5 +382,4 @@ with st.expander("🆘 Notfall-Infos & Funk (Ionian Sea)"):
         "Info": ["Griechenlandweit", "Wetter & Sicherheit", "Nur Notfall", "Rettungsdienst"]
     }
     st.table(pd.DataFrame(emergency_data))
-
     st.info("⚠️ VHF Olympia Radio Sendezeiten: 06:33, 09:33, 15:33, 21:33 (Lokalzeit)")
